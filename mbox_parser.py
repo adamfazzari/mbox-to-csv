@@ -40,18 +40,24 @@ if __name__ == "__main__":
     writer.writerow(["subject", "from", "date", "body"])
 
     # add rows based on mbox file
-    for message in mailbox.mbox(mbox_file):
-        contents = get_message(message)
-        contents = html2text.html2text(contents)
-        # does message contain name or email filter?
-        if name_filter != "" and name_filter in message["from"]:
-            writer.writerow([message["subject"], message["from"], message["date"], contents])
-        elif email_filter != "" and email_filter in message["from"]:
-            writer.writerow([message["subject"], message["from"], message["date"], contents])
-        elif email_filter != "" and name_filter != "":
-            writer.writerow([message["subject"], message["from"], message["date"], contents])
-        else:
-            continue
+    try:
+        for message in mailbox.mbox(mbox_file):
+            contents = get_message(message)
+            contents = html2text.html2text(contents)
+            contents = unicode(contents).encode('utf-8')
+            # does message contain name or email filter?
+            if name_filter != "" and name_filter in message["from"]:
+                writer.writerow([message["subject"], message["from"], message["date"], contents])
+            elif email_filter != "" and email_filter in message["from"]:
+                writer.writerow([message["subject"], message["from"], message["date"], contents])
+            elif email_filter != "" and name_filter != "":
+                writer.writerow([message["subject"], message["from"], message["date"], contents])
+            else:
+                continue
+    except UnicodeEncodeError as e:
+        print(e)
+        print(contents)
+
 
     # print finish message
     print "generated csv file called " + export_file_name
